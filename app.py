@@ -98,6 +98,21 @@ def getData():
 
 	client.db_close()
 
+	# iterate through data to find minimum and maximum price
+	minPrice = 1000000000
+	maxPrice = 0
+
+	for record in records:
+		price = record.price
+
+		if price > maxPrice:
+			maxPrice = price
+		if price < minPrice:
+			minPrice = price
+
+	print minPrice
+	print maxPrice
+
 	output = {"type":"FeatureCollection","features":[]}
 
 	for record in records:
@@ -105,6 +120,7 @@ def getData():
 		feature["id"] = record._rid
 		feature["properties"]["name"] = record.title
 		feature["properties"]["price"] = record.price
+		feature["properties"]["priceNorm"] = remap(record.price, minPrice, maxPrice, 0, 1)
 		feature["geometry"]["coordinates"] = [record.latitude, record.longitude]
 
 		output["features"].append(feature)

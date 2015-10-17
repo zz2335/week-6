@@ -74,6 +74,8 @@ function updateData(){
 		//create placeholder circle geometry and bind it to data
 		var circles = g.selectAll("circle").data(data.features);
 
+		console.log(data);
+
 		circles.enter()
 			.append("circle")
 			.on("mouseover", function(d){
@@ -88,6 +90,7 @@ function updateData(){
 			.on("mouseout", function(){
 				tooltip.style("visibility", "hidden");
 			})
+			.attr("fill", function(d) { return "hsl(" + Math.floor((1-d.properties.priceNorm)*250) + ", 100%, 50%)"; })
 		;
 
 		// call function to update geometry
