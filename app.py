@@ -192,7 +192,7 @@ def getData():
 			# lat = np.interp(float(j)/float(numH),[0,1],[lat2,lat1])
 			# lng = np.interp(float(i)/float(numW),[0,1],[lng1,lng2])
 			lat = remap(j, numH, 0, lat1, lat2)
-			lng = remap(j, 0, numW, lng1, lng2)
+			lng = remap(i, 0, numW, lng1, lng2)
 
 			testData = [[lat, lng]]
 			X_test = np.asarray(testData, dtype='float')

@@ -63,7 +63,7 @@ function updateData(){
 	var w = window.innerWidth;
 	var h = window.innerHeight;
 
-	var checked = document.getElementById("heatmap").checked
+	var checked = document.getElementById("interpolation").checked
 
 	request = "/getData?lat1=" + lat1 + "&lat2=" + lat2 + "&lng1=" + lng1 + "&lng2=" + lng2 + "&w=" + w + "&h=" + h + "&cell_size=" + cell_size + "&analysis=" + checked
 
