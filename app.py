@@ -95,8 +95,8 @@ def getData():
 
 	records = client.command(query.format(lat1, lat2, lng1, lng2))
 
-	random.shuffle(records)
-	records = records[:100]
+	# random.shuffle(records)
+	# records = records[:100]
 
 	numListings = len(records)
 	print 'received ' + str(numListings) + ' records'
@@ -174,6 +174,11 @@ def getData():
 
 	num = int(len(targetData) * .7)
 
+	print "length of dataset: " + str(len(targetData))
+	print "length of training set: " + str(num)
+	print "length of validation set: " + str(len(targetData)-num)
+
+	# create training and validation set
 	X_train = X[:num]
 	X_val = X[num:]
 
@@ -184,20 +189,52 @@ def getData():
 	scaler = preprocessing.StandardScaler().fit(X_train)
 	X_train_scaled = scaler.transform(X_train)
 
-	model = svm.SVR(C=10000000, epsilon=.00001, kernel='rbf', cache_size=2000)
-	model.fit(X_train_scaled, y_train)
+	mse_min = 10000000000000000000000
+	C_min = 0
+	e_min = 0
+
+	e_log = ""
+
+	q.put("training validation models")
+
+	for C_var in [1, 10000, 1000000]:
+
+		for e_var in [.001, 10, 10000]:
+
+			# model = svm.SVR(C=10000000, epsilon=.00001, kernel='rbf', cache_size=2000)
+			model = svm.SVR(C=C_var, epsilon=e_var, kernel='rbf', cache_size=2000)
+			model.fit(X_train_scaled, y_train)
+
+			#predict on validation set
+			y_val_p = [model.predict(i) for i in X_val]
+
+			#check error values
+			mse = 0
+			for i in range(len(y_val_p)):
+				mse += (y_val_p[i] - y_val[i]) ** 2
+
+			e_log += str(mse)
+
+			if mse < mse_min:
+				mse_min = mse
+				C_min = C_var
+				e_min = e_var
+				minModel = model
+
+	q.put("error results: " + e_log + "; model chosen, C: " + str(C_min) + ", e: " + str(e_min))
+
+	# model = svm.SVR(C=C_min, epsilon=e_min, kernel='rbf', cache_size=2000)
+	# model.fit(X_train_scaled, y_train)
 
 	for j in range(numH):
 		for i in range(numW):
-			# lat = np.interp(float(j)/float(numH),[0,1],[lat2,lat1])
-			# lng = np.interp(float(i)/float(numW),[0,1],[lng1,lng2])
 			lat = remap(j, numH, 0, lat1, lat2)
 			lng = remap(i, 0, numW, lng1, lng2)
 
 			testData = [[lat, lng]]
 			X_test = np.asarray(testData, dtype='float')
 			X_test_scaled = scaler.transform(X_test)
-			grid[j][i] = model.predict(X_test_scaled)
+			grid[j][i] = minModel.predict(X_test_scaled)
 
 	## ML IMPLEMENTATION
 
@@ -218,7 +255,7 @@ def getData():
 
 			output["analysis"].append(newItem)
 
-	q.put('idle')
+	# q.put('idle')
 
 	return json.dumps(output)
 
