@@ -143,16 +143,21 @@ def getData():
 		for i in range(numW):
 			grid[j].append(0)
 
-	for record in records:
+	## HEAT MAP IMPLEMENTATION
+	# for record in records:
 
-		pos_x = int(remap(record.longitude, lng1, lng2, 0, numW))
-		pos_y = int(remap(record.latitude, lat1, lat2, numH, 0))
+	# 	pos_x = int(remap(record.longitude, lng1, lng2, 0, numW))
+	# 	pos_y = int(remap(record.latitude, lat1, lat2, numH, 0))
 
-		spread = 12
+	# 	spread = 12
 
-		for j in range(max(0, (pos_y-spread)), min(numH, (pos_y+spread))):
-			for i in range(max(0, (pos_x-spread)), min(numW, (pos_x+spread))):
-				grid[j][i] += 2 * math.exp((-point_distance(i,j,pos_x,pos_y)**2)/(2*(spread/2)**2))
+	# 	for j in range(max(0, (pos_y-spread)), min(numH, (pos_y+spread))):
+	# 		for i in range(max(0, (pos_x-spread)), min(numW, (pos_x+spread))):
+	# 			grid[j][i] += 2 * math.exp((-point_distance(i,j,pos_x,pos_y)**2)/(2*(spread/2)**2))
+
+	## MACHINE LEARNING IMPLEMENTATION
+
+	
 
 	grid = normalizeArray(grid)
 
