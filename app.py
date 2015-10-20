@@ -214,7 +214,7 @@ def getData():
 
 			output["analysis"].append(newItem)
 
-	q.put('idle')
+	# q.put('idle')
 
 	return json.dumps(output)
 
