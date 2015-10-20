@@ -13,6 +13,11 @@ import pyorient
 
 from Queue import Queue
 
+from sklearn import preprocessing
+from sklearn import svm
+
+import numpy as np
+
 app = Flask(__name__)
 
 q = Queue()
@@ -155,9 +160,42 @@ def getData():
 	# 		for i in range(max(0, (pos_x-spread)), min(numW, (pos_x+spread))):
 	# 			grid[j][i] += 2 * math.exp((-point_distance(i,j,pos_x,pos_y)**2)/(2*(spread/2)**2))
 
+
 	## MACHINE LEARNING IMPLEMENTATION
 
-	
+	featureData = []
+	targetData = []
+
+	for record in records:
+		featureData.append([record.latitude, record.longitude])
+		targetData.append(record.price)
+
+	X = np.asarray(featureData, dtype='float')
+	y = np.asarray(targetData, dtype='float')
+
+	scaler = preprocessing.StandardScaler().fit(X)
+	X_scaled = scaler.transform(X)
+
+	q.put("training model...")
+
+	C = 10000
+	e = 10
+	g = .01
+
+	model = svm.SVR(C=C, epsilon=e, gamma=g, kernel='rbf', cache_size=2000)
+	model.fit(X_scaled, y)
+
+	for j in range(numH):
+		for i in range(numW):
+			lat = remap(j, numH, 0, lat1, lat2)
+			lng = remap(i, 0, numW, lng1, lng2)
+
+			testData = [[lat, lng]]
+			X_test = np.asarray(testData, dtype='float')
+			X_test_scaled = scaler.transform(X_test)
+			grid[j][i] = model.predict(X_test_scaled)
+
+
 
 	grid = normalizeArray(grid)
 
