@@ -190,11 +190,6 @@ def getData():
 	scaler = preprocessing.StandardScaler().fit(X_train)
 	X_train_scaled = scaler.transform(X_train)
 
-	# scaler = preprocessing.StandardScaler().fit(X)
-	# X_scaled = scaler.transform(X)
-
-	# q.put("training model...")
-
 	mse_min = 10000000000000000000000
 
 	for C in [.01, 1, 100, 10000, 1000000]:
