@@ -59,12 +59,17 @@ function updateData(){
 	var lng1 = mapBounds["_southWest"]["lng"];
 	var lng2 = mapBounds["_northEast"]["lng"];
 
+	// CAPTURE USER INPUT FOR CELL SIZE FROM HTML ELEMENTS
 	var cell_size = 25;
 	var w = window.innerWidth;
 	var h = window.innerHeight;
 
+	// CAPTURE USER INPUT FOR ANALYSIS TYPE SELECTION
 	var checked = document.getElementById("interpolation").checked
 
+	// CAPTURE USER INPUT FOR HEAT MAP 'SPREAD' OR OTHER PARAMETERS
+
+	// SEND USER CHOICES FOR ANALYSIS TYPE, CELL SIZE, HEAT MAP SPREAD, ETC. TO SERVER
 	request = "/getData?lat1=" + lat1 + "&lat2=" + lat2 + "&lng1=" + lng1 + "&lng2=" + lng2 + "&w=" + w + "&h=" + h + "&cell_size=" + cell_size + "&analysis=" + checked
 
 	console.log(request);

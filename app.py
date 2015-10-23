@@ -76,6 +76,8 @@ def getData():
 
 	analysis = request.args.get('analysis')
 
+	#CAPTURE ANY ADDITIONAL ARGUMENTS SENT FROM THE CLIENT HERE
+
 	print "received coordinates: [" + lat1 + ", " + lat2 + "], [" + lng1 + ", " + lng2 + "]"
 	
 	client = pyorient.OrientDB("localhost", 2424)
@@ -95,6 +97,9 @@ def getData():
 
 	records = client.command(query.format(lat1, lat2, lng1, lng2))
 
+	#USE INFORMATION RECEIVED FROM CLIENT TO CONTROL 
+	#HOW MANY RECORDS ARE CONSIDERED IN THE ANALYSIS
+	
 	# random.shuffle(records)
 	# records = records[:100]
 
@@ -148,12 +153,16 @@ def getData():
 		for i in range(numW):
 			grid[j].append(0)
 
+	#USE CONDITIONAL ALONG WITH UI INFORMATION RECEIVED FROM THE CLIENT TO SWITCH
+	#BETWEEN HEAT MAP AND INTERPOLATION ANALYSIS
+
 	## HEAT MAP IMPLEMENTATION
 	# for record in records:
 
 	# 	pos_x = int(remap(record.longitude, lng1, lng2, 0, numW))
 	# 	pos_y = int(remap(record.latitude, lat1, lat2, numH, 0))
 
+	#USE INFORMATION RECEIVED FROM CLIENT TO CONTROL SPREAD OF HEAT MAP
 	# 	spread = 12
 
 	# 	for j in range(max(0, (pos_y-spread)), min(numH, (pos_y+spread))):
