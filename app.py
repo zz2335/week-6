@@ -93,7 +93,7 @@ def getData():
 		print "database [" + db_name + "] does not exist! session ending..."
 		sys.exit()
 
-	query = 'SELECT FROM Listing WHERE latitude BETWEEN {} AND {} AND longitude BETWEEN {} AND {}'
+	query = 'SELECT FROM Listing WHERE latitude BETWEEN {} AND {} AND longitude BETWEEN {} AND {} AND prec = 1 AND conf > 60'
 
 	records = client.command(query.format(lat1, lat2, lng1, lng2))
 
