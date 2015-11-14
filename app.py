@@ -78,10 +78,12 @@ def getData():
 
 	#CAPTURE ANY ADDITIONAL ARGUMENTS SENT FROM THE CLIENT HERE
 
+	print "spread=" + str(spread)
+
 	print "received coordinates: [" + lat1 + ", " + lat2 + "], [" + lng1 + ", " + lng2 + "]"
 	
 	client = pyorient.OrientDB("localhost", 2424)
-	session_id = client.connect("root", "password")
+	session_id = client.connect("root", "network.ssl.keyStorePassword")
 	db_name = "soufun"
 	db_username = "admin"
 	db_password = "admin"
@@ -102,6 +104,10 @@ def getData():
 	
 	# random.shuffle(records)
 	# records = records[:100]
+
+	if heatmap == "true":
+		random.shuffle(records)
+		records = records[:100]
 
 	numListings = len(records)
 	print 'received ' + str(numListings) + ' records'
@@ -135,11 +141,10 @@ def getData():
 
 		output["features"].append(feature)
 
-	if analysis == "false":
-		q.put('idle')
-		return json.dumps(output)
-
-	q.put('starting analysis...')
+	if heatmap == "false":
+		if analysis == "false":
+			q.put('idle')
+			return json.dumps(output)
 
 	output["analysis"] = []
 
@@ -162,6 +167,12 @@ def getData():
 	# 	pos_x = int(remap(record.longitude, lng1, lng2, 0, numW))
 	# 	pos_y = int(remap(record.latitude, lat1, lat2, numH, 0))
 
+	if heatmap == "true":
+		q.put('starting heatmap analysis...')
+		for record in records:
+			pos_x = int(remap(record.longitude, lng1, lng2, 0, numW))
+			pos_y = int(remap(record.latitude, lat1, lat2, numH, 0))
+
 	#USE INFORMATION RECEIVED FROM CLIENT TO CONTROL SPREAD OF HEAT MAP
 	# 	spread = 12
 
@@ -169,8 +180,45 @@ def getData():
 	# 		for i in range(max(0, (pos_x-spread)), min(numW, (pos_x+spread))):
 	# 			grid[j][i] += 2 * math.exp((-point_distance(i,j,pos_x,pos_y)**2)/(2*(spread/2)**2))
 
+	if ((spread>0)and(spread<20)):
+		spread = spread
+	else :
+		spread = 12
+		print "spread = defult value"
+
+	for j in range(max(0, (pos_y-spread)), min(numH, (pos_y+spread))):
+		for i in range(max(0, (pos_x-spread)), min(numW, (pos_x+spread))):
+			grid[j][i] += 2 * math.exp((-point_distance(i,j,pos_x,pos_y)**2)/(2*(spread/2)**2))
+			grid = normalizeArray(grid)
+
+	offsetLeft = (w - numW * cell_size) / 2.0
+	offsetTop = (h - numH * cell_size) / 2.0
+
+	for j in range(numH):
+		for i in range(numW):
+			newItem = {}
+
+			newItem['x'] = offsetLeft + i*cell_size
+			newItem['y'] = offsetTop + j*cell_size
+			newItem['width'] = cell_size-1
+			newItem['height'] = cell_size-1
+			newItem['value'] = grid[j][i]
+
+			output["analysis"].append(newItem)
+
+	if analysis == "false":
+		q.put('idle')
+
+	if analysis == "true":
+		q.put('cannot run both, run as heatmap')
+
+	return json.dumps(output)
+
 
 	## MACHINE LEARNING IMPLEMENTATION
+
+	if ((heatmap == "false") and (analysis == "true")):
+		q.put('starting interpolation analysis...')
 
 	featureData = []
 	targetData = []
